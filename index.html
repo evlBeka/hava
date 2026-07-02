@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Твой Особый Аттестат</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #1a1a1a;
+            background-image: radial-gradient(circle, #2c2c2c 0%, #111111 100%);
+            font-family: 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            perspective: 1500px; /* Эффект 3D для переворачивания */
+        }
+        .instruction {
+            position: absolute;
+            top: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            text-align: center;
+            font-family: sans-serif;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+        /* Контейнер аттестата */
+        .certificate {
+            position: relative;
+            width: 380px;
+            height: 520px;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        /* Класс, который будет добавляться при клике для раскрытия */
+        .certificate.open {
+            transform: rotateY(-180px) translateX(50%);
+        }
+        /* Общие свойства для страниц */
+        .cover, .inside-page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        /* --- ОБЛОЖКА --- */
+        .cover {
+            background: linear-gradient(135deg, #8b0000 0%, #660000 100%);
+            border: 2px solid #550000;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            backface-visibility: hidden;
+        }
+        /* Тиснение на обложке */
+        .cover-border {
+            position: absolute;
+            top: 15px; left: 15px; right: 15px; bottom: 15px;
+            border: 2px solid #ffd700;
+            border-radius: 2px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .cover h1 {
+            color: #ffd700;
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+        }
+        .cover .subtitle {
+            color: #ffffff;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+        }
+        .cover .heart-icon {
+            font-size: 50px;
+            color: #ffd700;
+            margin-bottom: 45px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+        .cover .footer-text {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            margin-top: auto;
+            text-transform: uppercase;
+        }
+        /* Анимация раскрытия обложки */
+        .certificate.open .cover {
+            transform: rotateY(-180deg);
+        }
+        /* --- ВНУТРЕННЯЯ ЧАСТЬ (СТРАНИЦА С ОЦЕНКАМИ) --- */
+        .inside-page {
+            background: #fbf8eb; /* Цвет советской/официальной плотной бумаги */
+            background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0);
+            background-size: 12px 12px;
+            z-index: 1;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            color: #222;
+            border: 1px solid #e0dbcd;
+        }
+        .inside-page h2 {
+            font-size: 14px;
+            text-align: center;
+            letter-spacing: 1px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .inside-page .doc-title {
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+            color: #8b0000;
+            margin-bottom: 15px;
+        }
+        .inside-page .recipient {
+            font-size: 13px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            text-align: center;
+            border-bottom: 1px dashed #999;
+            padding-bottom: 5px;
+        }
+        /* Таблица оценок */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 6px 8px;
+            text-align: left;
+        }
+        th {
+            background-color: rgba(0,0,0,0.03);
+            font-weight: bold;
+        }
+        td.mark {
+            color: #b30000;
+            font-weight: bold;
+            text-align: right;
+        }
+        /* Подписи и печать */
+        .signatures {
+            margin-top: auto;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .sig-block {
+            width: 45%;
+        }
+        .sig-line {
+            border-bottom: 1px solid #333;
+            height: 20px;
+            margin-bottom: 2px;
+        }
+        .stamp-place {
+            width: 60px;
+            height: 60px;
+            border: 2px dashed rgba(255, 0, 0, 0.4);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 0, 0, 0.5);
+            font-size: 8px;
+            font-weight: bold;
+            transform: rotate(-15deg);
+            position: absolute;
+            bottom: 25px;
+            left: 42%;
+        }
+        /* Адаптивность для мобильных телефонов */
+        @media (max-width: 400px) {
+            .certificate {
+                width: 300px;
+                height: 430px;
+            }
+            .certificate.open {
+                transform: rotateY(-180px) translateX(45%);
+            }
+            .cover h1 { font-size: 18px; }
+            .cover .subtitle { font-size: 13px; }
+            .inside-page { padding: 15px 10px; }
+            table { font-size: 10px; }
+            th, td { padding: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="instruction">Нажми на аттестат, чтобы открыть его</div>
+
+    <div class="certificate" id="cert">
+        <!-- ВНЕШНЯЯ СТОРОНА (ОБЛОЖКА) -->
+        <div class="cover">
+            <div class="cover-border"></div>
+            <h1>АТТЕСТАТ</h1>
+            <div class="subtitle">Лучшей девушке</div>
+            <div class="heart-icon">❤</div>
+            <div class="footer-text">Российская Федерация</div>
+        </div>
+
+        <!-- ВНУТРЕННЯЯ СТОРОНА -->
+        <div class="inside-page">
+            <h2>РОССИЙСКАЯ ФЕДЕРАЦИЯ</h2>
+            <div class="doc-title">АТТЕСТАТ О ЛЮБВИ И ПРЕДАННОСТИ</div>
+            
+            <div class="recipient">
+                Настоящий документ подтверждает, что самая прекрасная девушка на свете окончила курс «Счастливые отношения» и сдала все экзамены на высший балл.
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Наименование дисциплины</th>
+                        <th>Оценка</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Красота (внешняя и внутренняя)</td>
+                        <td class="mark">5+ (Идеал)</td>
+                    </tr>
+                    <tr>
+                        <td>Милота и очарование</td>
+                        <td class="mark">Отлично!</td>
+                    </tr>
+                    <tr>
+                        <td>Доброта и поддержка</td>
+                        <td class="mark">Магистр</td>
+                    </tr>
+                    <tr>
+                        <td>Чувство юмора</td>
+                        <td class="mark">Прекрасно</td>
+                    </tr>
+                    <tr>
+                        <td>Умение делать меня счастливым</td>
+                        <td class="mark">Вне шкал</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="stamp-place">ЛЮБЛЮ<br>СИЛЬНО</div>
+
+            <div class="signatures">
+                <div class="sig-block">
+                    <div class="sig-line"></div>
+                    <div>Директор твоего сердца</div>
+                </div>
+                <div class="sig-block" style="text-align: right;">
+                    <div class="sig-line"></div>
+                    <div>Секретарь счастья</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Скрипт для отслеживания клика и запуска анимации
+        const cert = document.getElementById('cert');
+        cert.addEventListener('click', () => {
+            cert.classList.toggle('open');
+        });
+    </script>
+</body>
+</html>
