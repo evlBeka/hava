@@ -19,7 +19,7 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
-            perspective: 1500px; /* Эффект 3D для переворачивания */
+            perspective: 2000px; /* Глубина 3D */
         }
         .instruction {
             position: absolute;
@@ -30,91 +30,35 @@
             font-family: sans-serif;
             pointer-events: none;
             animation: pulse 2s infinite;
+            z-index: 10;
         }
         @keyframes pulse {
-            0% { opacity: 0.5; }
+            0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
-            100% { opacity: 0.5; }
         }
-        /* Контейнер аттестата */
-        .certificate {
+
+        /* Главный контейнер книги */
+        .book {
             position: relative;
             width: 380px;
             height: 520px;
             transform-style: preserve-3d;
             transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
         }
-        /* Класс, который будет добавляться при клике для раскрытия */
-        .certificate.open {
-            transform: rotateY(-180px) translateX(50%);
+
+        /* Сдвигаем всю книгу чуть вправо при открытии, чтобы она осталась по центру экрана */
+        .book.open {
+            transform: translateX(25%);
         }
-        /* Общие свойства для страниц */
-        .cover, .inside-page {
+
+        /* --- ВНУТРЕННИЙ БЛАНК (Лежит неподвижно снизу) --- */
+        .inside-page {
             position: absolute;
             width: 100%;
             height: 100%;
-            border-radius: 4px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        /* --- ОБЛОЖКА --- */
-        .cover {
-            background: linear-gradient(135deg, #8b0000 0%, #660000 100%);
-            border: 2px solid #550000;
-            transform-origin: left center;
-            transform-style: preserve-3d;
-            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            text-align: center;
-            backface-visibility: hidden;
-        }
-        /* Тиснение на обложке */
-        .cover-border {
-            position: absolute;
-            top: 15px; left: 15px; right: 15px; bottom: 15px;
-            border: 2px solid #ffd700;
-            border-radius: 2px;
-            opacity: 0.4;
-            pointer-events: none;
-        }
-        .cover h1 {
-            color: #ffd700;
-            font-size: 22px;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
-        }
-        .cover .subtitle {
-            color: #ffffff;
-            font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 40px;
-        }
-        .cover .heart-icon {
-            font-size: 50px;
-            color: #ffd700;
-            margin-bottom: 45px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-        }
-        .cover .footer-text {
-            color: rgba(255,255,255,0.7);
-            font-size: 11px;
-            margin-top: auto;
-            text-transform: uppercase;
-        }
-        /* Анимация раскрытия обложки */
-        .certificate.open .cover {
-            transform: rotateY(-180deg);
-        }
-        /* --- ВНУТРЕННЯЯ ЧАСТЬ (СТРАНИЦА С ОЦЕНКАМИ) --- */
-        .inside-page {
-            background: #fbf8eb; /* Цвет советской/официальной плотной бумаги */
+            top: 0;
+            left: 0;
+            background: #fbf8eb;
             background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0);
             background-size: 12px 12px;
             z-index: 1;
@@ -123,7 +67,96 @@
             flex-direction: column;
             color: #222;
             border: 1px solid #e0dbcd;
+            border-radius: 0 4px 4px 0;
+            box-shadow: 5px 10px 30px rgba(0,0,0,0.5);
         }
+
+        /* --- ОТКИДНАЯ ОБЛОЖКА --- */
+        .cover-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            transform-origin: left center; /* Ось вращения — левый край */
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Вращаем только обложку влево на 180 градусов */
+        .book.open .cover-wrapper {
+            transform: rotateY(-180deg);
+        }
+
+        .cover-front, .cover-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            backface-visibility: hidden; /* Прячет изнанку при развороте */
+        }
+
+        /* Лицевая сторона обложки */
+        .cover-front {
+            background: linear-gradient(135deg, #8b0000 0%, #660000 100%);
+            border: 2px solid #550000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            z-index: 2;
+            transform: rotateY(0deg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Задняя часть обложки (левая внутренняя сторона при открытии) */
+        .cover-back {
+            background: linear-gradient(135deg, #7a0000 0%, #550000 100%);
+            border: 1px solid #440000;
+            transform: rotateY(180deg); /* Изначально развернута внутрь */
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.4);
+        }
+
+        /* Стили оформления текста и элементов */
+        .cover-border {
+            position: absolute;
+            top: 15px; left: 15px; right: 15px; bottom: 15px;
+            border: 2px solid #ffd700;
+            border-radius: 2px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .cover-front h1 {
+            color: #ffd700;
+            font-size: 22px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+        }
+        .cover-front .subtitle {
+            color: #ffffff;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+        }
+        .cover-front .heart-icon {
+            font-size: 50px;
+            color: #ffd700;
+            margin-bottom: 45px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+        .cover-front .footer-text {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+            margin-top: auto;
+            text-transform: uppercase;
+        }
+
+        /* Стили бланка */
         .inside-page h2 {
             font-size: 14px;
             text-align: center;
@@ -146,7 +179,7 @@
             border-bottom: 1px dashed #999;
             padding-bottom: 5px;
         }
-        /* Таблица оценок */
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -167,13 +200,26 @@
             font-weight: bold;
             text-align: right;
         }
-        /* Подписи и печать */
+
+        .personal-message {
+            font-size: 13px;
+            font-style: italic;
+            text-align: center;
+            color: #444;
+            line-height: 1.5;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+
         .signatures {
             margin-top: auto;
             font-size: 11px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            position: relative;
+            z-index: 2;
         }
         .sig-block {
             width: 45%;
@@ -198,21 +244,26 @@
             position: absolute;
             bottom: 25px;
             left: 42%;
+            z-index: 1;
+            pointer-events: none;
         }
-        /* Адаптивность для мобильных телефонов */
-        @media (max-width: 400px) {
-            .certificate {
+
+        /* Адаптивность */
+        @media (max-width: 420px) {
+            .book {
                 width: 300px;
-                height: 430px;
+                height: 450px;
             }
-            .certificate.open {
-                transform: rotateY(-180px) translateX(45%);
+            .book.open {
+                transform: translateX(20%);
             }
-            .cover h1 { font-size: 18px; }
-            .cover .subtitle { font-size: 13px; }
+            .cover-front h1 { font-size: 18px; }
+            .cover-front .subtitle { font-size: 13px; }
             .inside-page { padding: 15px 10px; }
-            table { font-size: 10px; }
+            table { font-size: 10px; margin-bottom: 10px; }
             th, td { padding: 4px; }
+            .personal-message { font-size: 11px; margin-bottom: 10px; }
+            .stamp-place { width: 50px; height: 50px; font-size: 7px; bottom: 20px; }
         }
     </style>
 </head>
@@ -220,21 +271,26 @@
 
     <div class="instruction">Нажми на аттестат, чтобы открыть его</div>
 
-    <div class="certificate" id="cert">
-        <!-- ВНЕШНЯЯ СТОРОНА (ОБЛОЖКА) -->
-        <div class="cover">
-            <div class="cover-border"></div>
-            <h1>АТТЕСТАТ</h1>
-            <div class="subtitle">Лучшей девушке</div>
-            <div class="heart-icon">❤</div>
-            <div class="footer-text">Российская Федерация</div>
+    <div class="book" id="bookContainer">
+        <!-- АНИМИРОВАННАЯ ОБЛОЖКА -->
+        <div class="cover-wrapper">
+            <!-- Передняя сторона (Красная обложка) -->
+            <div class="cover-front">
+                <div class="cover-border"></div>
+                <h1>АТТЕСТАТ</h1>
+                <div class="subtitle">Лучшей девушке</div>
+                <div class="heart-icon">❤</div>
+                <div class="footer-text">Российская Федерация</div>
+            </div>
+            <!-- Задняя сторона (Изнанка обложки при открытии) -->
+            <div class="cover-back"></div>
         </div>
 
-        <!-- ВНУТРЕННЯЯ СТОРОНА -->
+        <!-- ВНУТРЕННИЙ БЛАНК (Всегда ровный и читаемый) -->
         <div class="inside-page">
             <h2>РОССИЙСКАЯ ФЕДЕРАЦИЯ</h2>
             <div class="doc-title">АТТЕСТАТ О ЛЮБВИ И ПРЕДАННОСТИ</div>
-            
+
             <div class="recipient">
                 Настоящий документ подтверждает, что самая прекрасная девушка на свете окончила курс «Счастливые отношения» и сдала все экзамены на высший балл.
             </div>
@@ -270,6 +326,10 @@
                 </tbody>
             </table>
 
+            <div class="personal-message">
+                Я тебя очень сильно люблю. Помни, я всегда буду рядом, что бы ни случилось, и всегда поддержу тебя во всём.
+            </div>
+
             <div class="stamp-place">ЛЮБЛЮ<br>СИЛЬНО</div>
 
             <div class="signatures">
@@ -286,10 +346,9 @@
     </div>
 
     <script>
-        // Скрипт для отслеживания клика и запуска анимации
-        const cert = document.getElementById('cert');
-        cert.addEventListener('click', () => {
-            cert.classList.toggle('open');
+        const book = document.getElementById('bookContainer');
+        book.addEventListener('click', () => {
+            book.classList.toggle('open');
         });
     </script>
 </body>
