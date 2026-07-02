@@ -43,6 +43,7 @@
             position: relative;
             width: 380px;
             height: 520px;
+            cursor: pointer;
         }
 
         /* --- ВНУТРЕННИЙ БЛАНК (Всегда по центру) --- */
@@ -65,7 +66,7 @@
             box-shadow: 0 15px 40px rgba(0,0,0,0.6);
         }
 
-        /* --- ОБЛОЖКА (Перекрывает бланк) --- */
+        /* --- ОБЛОЖКА --- */
         .cover-front {
             position: absolute;
             width: 100%;
@@ -83,22 +84,19 @@
             padding: 30px;
             text-align: center;
             box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            cursor: pointer;
 
-            /* Плавное исчезновение и раскрытие */
+            /* Плавный поворот и растворение */
             transform-origin: left center;
-            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-                        opacity 1s cubic-bezier(0.4, 0, 0.2, 1),
-                        visibility 1.2s;
-            visibility: visible;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 1;
         }
 
-        /* Эффект угасания и распахивания обложки */
+        /* Эффект при открытии */
         .book.open .cover-front {
             transform: rotateY(-140deg) scale(0.9);
             opacity: 0;
-            visibility: hidden; /* Полностью убирает кликабельность после анимации */
+            pointer-events: none; /* Чтобы можно было кликнуть по бланку под ней для закрытия */
         }
 
         /* Оформление элементов обложки */
@@ -195,7 +193,7 @@
 
         .signatures {
             margin-top: auto;
-            font-size: 9px;
+            font-size: 11px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
@@ -229,7 +227,7 @@
             pointer-events: none;
         }
 
-        /* Адаптивность под смартфоны */
+        /* Адаптивность */
         @media (max-width: 420px) {
             .book {
                 width: 300px;
@@ -247,10 +245,10 @@
 </head>
 <body>
 
-    <div class="instruction" id="hint">Нажми на аттестат, чтобы открыть его</div>
+    <div class="instruction" id="hint">Нажми на аттестат, чтобы открыть/закрыть его</div>
 
     <div class="book" id="bookContainer">
-        <!-- ОБЛОЖКА (Исчезает при клике) -->
+        <!-- ОБЛОЖКА -->
         <div class="cover-front">
             <div class="cover-border"></div>
             <h1>АТТЕСТАТ</h1>
@@ -259,7 +257,7 @@
             <div class="footer-text">Российская Федерация</div>
         </div>
 
-        <!-- ВНУТРЕННИЙ БЛАНК (Остается по центру) -->
+        <!-- ВНУТРЕННИЙ БЛАНК -->
         <div class="inside-page">
             <h2>РОССИЙСКАЯ ФЕДЕРАЦИЯ</h2>
             <div class="doc-title">АТТЕСТАТ О ЛЮБВИ И ПРЕДАННОСТИ</div>
@@ -277,7 +275,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Красота</td>
+                        <td>Красота (внешняя и внутренняя)</td>
                         <td class="mark">5+ (Идеал)</td>
                     </tr>
                     <tr>
@@ -323,8 +321,14 @@
         const hint = document.getElementById('hint');
 
         book.addEventListener('click', () => {
-            book.classList.add('open');
-            hint.style.opacity = '0'; // Скрываем подсказку сверху
+            book.classList.toggle('open');
+
+            // Скрываем подсказку только при первом открытии
+            if (book.classList.contains('open')) {
+                hint.style.opacity = '0';
+            } else {
+                hint.style.opacity = '0.6';
+            }
         });
     </script>
 </body>
