@@ -9,6 +9,12 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            /* Полностью убираем выделение текста и синюю подсветку тапов на смартфонах */
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         body {
             background-color: #1a1a1a;
@@ -46,7 +52,7 @@
             cursor: pointer;
         }
 
-        /* --- ВНУТРЕННИЙ БЛАНК (Всегда по центру) --- */
+        /* --- ВНУТРЕННИЙ БЛАНК --- */
         .inside-page {
             position: absolute;
             width: 100%;
@@ -96,7 +102,7 @@
         .book.open .cover-front {
             transform: rotateY(-140deg) scale(0.9);
             opacity: 0;
-            pointer-events: none; /* Чтобы можно было кликнуть по бланку под ней для закрытия */
+            pointer-events: none;
         }
 
         /* Оформление элементов обложки */
@@ -323,7 +329,6 @@
         book.addEventListener('click', () => {
             book.classList.toggle('open');
 
-            // Скрываем подсказку только при первом открытии
             if (book.classList.contains('open')) {
                 hint.style.opacity = '0';
             } else {
